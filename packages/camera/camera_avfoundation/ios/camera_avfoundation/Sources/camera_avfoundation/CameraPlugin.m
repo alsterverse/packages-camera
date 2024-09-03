@@ -60,6 +60,13 @@ static FlutterError *FlutterErrorFromNSError(NSError *error) {
                                            selector:@selector(orientationChanged:)
                                                name:UIDeviceOrientationDidChangeNotification
                                              object:[UIDevice currentDevice]];
+
+  if (@available(iOS 13.0, *)) {
+      [[AVAudioSession sharedInstance] setAllowHapticsAndSystemSoundsDuringRecording:YES error:NULL];
+  } else {
+      // Fallback on earlier versions
+  }
+  
   return self;
 }
 
