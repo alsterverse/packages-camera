@@ -10,6 +10,7 @@ import 'package:camera_platform_interface/camera_platform_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import 'camera_controller.dart';
@@ -54,7 +55,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   XFile? videoFile;
   VideoPlayerController? videoController;
   VoidCallback? videoPlayerListener;
-  bool enableAudio = true;
+  bool enableAudio = false;
   double _minAvailableExposureOffset = 0.0;
   double _maxAvailableExposureOffset = 0.0;
   double _currentExposureOffset = 0.0;
@@ -296,7 +297,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
                 : <Widget>[],
             IconButton(
               icon: Icon(enableAudio ? Icons.volume_up : Icons.volume_mute),
-              color: Colors.blue,
+              color: Colors.red,
               onPressed: controller != null ? onAudioModeButtonPressed : null,
             ),
             IconButton(
@@ -629,6 +630,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
+      print('set new description for camera');
       return controller!.setDescription(cameraDescription);
     } else {
       return _initializeCameraController(cameraDescription);
@@ -637,6 +639,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
   Future<void> _initializeCameraController(
       CameraDescription cameraDescription) async {
+        print('_initializeCameraController enable audio $enableAudio');
     final CameraController cameraController = CameraController(
       cameraDescription,
       kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
@@ -804,6 +807,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   }
 
   void onVideoRecordButtonPressed() {
+    HapticFeedback.heavyImpact();
     startVideoRecording().then((_) {
       if (mounted) {
         setState(() {});
@@ -812,6 +816,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   }
 
   void onStopButtonPressed() {
+    HapticFeedback.heavyImpact();
     stopVideoRecording().then((XFile? file) {
       if (mounted) {
         setState(() {});

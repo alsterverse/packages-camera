@@ -305,6 +305,22 @@ NSString *const errorMethod = @"error";
   [_audioCaptureSession startRunning];
 }
 
+- (void)startAudio {
+  //[_audioCaptureSession startRunning];
+}
+
+- (void)stopAudio {
+//  [_audioCaptureSession stopRunning];
+
+//    for (AVCaptureInput *input in [_audioCaptureSession inputs]) {
+//      [_audioCaptureSession removeInput:input];
+//    }
+//    for (AVCaptureOutput *output in [_audioCaptureSession outputs]) {
+//      [_audioCaptureSession removeOutput:output];
+//    }
+//    _isAudioSetup = NO;
+}
+
 - (void)stop {
   [_videoCaptureSession stopRunning];
   [_audioCaptureSession stopRunning];
@@ -841,6 +857,7 @@ NSString *const errorMethod = @"error";
     // didOutputSampleBuffer had chance to call startWriting and lag at start of video
     // https://github.com/flutter/flutter/issues/132016
     // https://github.com/flutter/flutter/issues/151319
+    [self startAudio];
     [_videoWriter startWriting];
     _isFirstVideoSample = YES;
     _isRecording = YES;
@@ -869,12 +886,18 @@ NSString *const errorMethod = @"error";
     [_videoWriter finishWritingWithCompletionHandler:^{
       if (self->_videoWriter.status == AVAssetWriterStatusCompleted) {
         [self updateOrientation];
+        // Stopping the audio here causes the video to freeze but enables
+        [self stopAudio];
         completion(self->_videoRecordingPath, nil);
         self->_videoRecordingPath = nil;
+//        [self startAudio];
       } else {
+        // Stopping the audio here causes the video to freeze
+        [self stopAudio];
         completion(nil, [FlutterError errorWithCode:@"IOError"
                                             message:@"AVAssetWriter could not finish writing!"
                                             details:nil]);
+//        [self startAudio];
       }
     }];
   } else {
@@ -884,6 +907,7 @@ NSString *const errorMethod = @"error";
                         userInfo:@{NSLocalizedDescriptionKey : @"Video is not recording!"}];
     completion(nil, FlutterErrorFromNSError(error));
   }
+
 }
 
 - (void)pauseVideoRecording {
@@ -1232,6 +1256,7 @@ NSString *const errorMethod = @"error";
   }
 
   if (_mediaSettings.enableAudio && !_isAudioSetup) {
+    NSLog(@"set up capture session for audio");
     [self setUpCaptureSessionForAudio];
   }
 

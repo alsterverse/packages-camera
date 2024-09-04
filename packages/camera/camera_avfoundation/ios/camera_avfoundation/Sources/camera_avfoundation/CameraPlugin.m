@@ -62,11 +62,21 @@ static FlutterError *FlutterErrorFromNSError(NSError *error) {
                                              object:[UIDevice currentDevice]];
 
   if (@available(iOS 13.0, *)) {
-      [[AVAudioSession sharedInstance] setAllowHapticsAndSystemSoundsDuringRecording:YES error:NULL];
+      NSError *error = nil;
+
+      NSLog(@"set category to record");
+      [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord error:&error];
+      NSLog(@"set haptics to be allowed");
+      [[AVAudioSession sharedInstance] setAllowHapticsAndSystemSoundsDuringRecording:YES error:&error];
+      [[AVAudioSession sharedInstance] setActive:YES error:&error];
+
+      if (error) {
+          NSLog(@"ERROR %@", error.description);
+      }
   } else {
       // Fallback on earlier versions
   }
-  
+
   return self;
 }
 
@@ -256,6 +266,7 @@ static FlutterError *FlutterErrorFromNSError(NSError *error) {
   __weak typeof(self) weakSelf = self;
   dispatch_async(self.captureSessionQueue, ^{
     [weakSelf.camera stopVideoRecordingWithCompletion:completion];
+//    [weakSelf.camera stopAudio];
   });
 }
 
