@@ -55,7 +55,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   XFile? videoFile;
   VideoPlayerController? videoController;
   VoidCallback? videoPlayerListener;
-  bool enableAudio = false;
+  bool enableAudio = true;
   double _minAvailableExposureOffset = 0.0;
   double _maxAvailableExposureOffset = 0.0;
   double _currentExposureOffset = 0.0;
@@ -631,6 +631,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       print('set new description for camera');
+      // If we want enableAudio to be changed, we need to dispose the old controller and create a new one here instead of calling controller.setDescription
       return controller!.setDescription(cameraDescription);
     } else {
       return _initializeCameraController(cameraDescription);
